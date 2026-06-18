@@ -33,7 +33,7 @@ export default function LoginScreen() {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    }); // that checks the password and email if the both are correct it will login if not it won't login the user so I wrote error if email or password inccorect error will throw an alert if User's email and password correct there is no error and this information goes to _layout.tsx and onAuthStateChange will run to save the user information email and password
+    }); // that checks the password and email if the both are correct it will login if not it won't login the user so I wrote error if email or password inccorect error will throw an alert if User's email and password correct there is no error and this information goes to _layout.tsx and onAuthStateChange will run to save the user information email and password I mean it saves the token
 
     setLoading(false); // Request finished so it returns false
 

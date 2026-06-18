@@ -1,7 +1,6 @@
 import { supabase } from "@/src/services/supabase"; // I imported supabase for taking the datas from supabase database
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router"; //  That's for navigation switch between the screens
-import { useEffect, useState } from "react"; // useState for taking the data from supabase
+import { useFocusEffect, useRouter } from "expo-router"; //  useRouter for navigation switch between the screens and useFocusEffect works when the everytime when focus the screen but useEffect can't refresh useFocusEffect works refresh so I used useFocusEffect the user added a new travel journey card the useFocusEffect notice that but useEffect can't notice that so I used useFocusEffect
+import { useCallback, useState } from "react"; // useEffect is the rigger when the screen opens it calls the fetchEntries. I mean in general useEffect something happened react to it. It runs automatically when a condition is met. useState for taking the data from supabase
 import {
   ActivityIndicator,
   FlatList,
@@ -10,10 +9,13 @@ import {
   Text,
   View,
 } from "react-native"; // FlatList is a component for long list
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// I commited AsyncStorage lines for blocking the error I got AsyncStorage native module is null, cannot access legacy storage so I commited these AsyncStorage lines because Expo go works with old version old architecture but AsyncStorage uses new react native architecture so they don't match
 
 type Entry = {
   // that's the type of the data in supabase same columns and I wrote title, description, location, visited_at for travel information
-  id: number;
+  user_id: string;
   title: string;
   description: string;
   location: string;
@@ -26,16 +28,19 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true); // that's for the loading indicator when the user press button and until the screen comes it shows the inducator
   const router = useRouter();
 
-  useEffect(() => {
-    fetchEntries(); // it connects the supabase and takes the data from supabase
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // when the user goes back to the home screen this useFocusEffect works and adds the new travel card to home screen with using fetchEntries peers added to supabase with entire main screen
+      fetchEntries();
+    }, []) // [] that means fetchEntries works only once for the avoid infinite loop
+  );
 
   const fetchEntries = async () => {
     // it takes the data from fetchEntries from supabase entry list
     setLoading(true); // while the taking datas and transfer the screen this loading indicator returns true until the data transfered
 
-    const cached = await AsyncStorage.getItem("entries"); // that reads the data from entries and AsyncStorage dependencies stores the data in memory if the user is in offline or doesn't have a internet connection
-    if (cached) setEntries(JSON.parse(cached));
+    //const cached = await AsyncStorage.getItem("entries"); // that reads the data from entries and AsyncStorage dependencies stores the data in memory if the user is in offline or doesn't have a internet connection
+    //if (cached) setEntries(JSON.parse(cached));
 
     const { data, error } = await supabase // takes the data from entries I mean travel information table it takes the data from there
       .from("entries")
@@ -46,7 +51,7 @@ export default function HomeScreen() {
       console.error(error); // if there's an error write the consol
       setError("Could not load data. Please check your internet connection."); // that's the error message and set writes the error message to the error memory box
     } else setEntries(data || []); // if there's data write the memory box
-    await AsyncStorage.setItem("entries", JSON.stringify(data || [])); // that writes the data to the entries
+    //await AsyncStorage.setItem("entries", JSON.stringify(data || [])); // that writes the data to the entries
     setLoading(false); // when the data transfered loading indicator returns false
   };
 
@@ -62,7 +67,7 @@ export default function HomeScreen() {
       {error && <Text style={styles.errorText}>{error}</Text>}
       <FlatList
         data={entries}
-        keyExtractor={(item) => item.id.toString()} // that give the special id to every item
+        keyExtractor={(item, index) => index.toString()} // that give the special id to every item
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{item.title}</Text>

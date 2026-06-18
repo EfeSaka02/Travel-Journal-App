@@ -13,6 +13,7 @@ const ExpoSecureStoreAdapter = {
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  // I wrote export because other files can use this connection
   auth: {
     storage: ExpoSecureStoreAdapter,
     autoRefreshToken: true,
